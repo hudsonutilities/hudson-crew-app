@@ -10,7 +10,7 @@
 .packages
 .pub-cache/
 .pub/
-build/
+# build/  (commented out - we need it for Cloudflare)
 *.log
 
 # IDE - Cursor, VS Code, Android Studio
