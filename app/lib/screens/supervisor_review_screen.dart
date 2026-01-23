@@ -205,7 +205,8 @@ class _SupervisorReviewScreenState extends State<SupervisorReviewScreen> {
               await _jobsFuture;
             },
             child: ListView.builder(
-              physics: const ClampingScrollPhysics(),
+              primary: true,
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16.0),
               itemCount: jobs.length,
               itemBuilder: (context, index) {

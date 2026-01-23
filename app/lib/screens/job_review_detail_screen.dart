@@ -490,7 +490,8 @@ class _JobReviewDetailScreenState extends State<JobReviewDetailScreen> {
                               child: Text('No photo categories found'),
                             )
                           : ListView.builder(
-                              physics: const ClampingScrollPhysics(),
+                              primary: true,
+                              physics: const AlwaysScrollableScrollPhysics(),
                               padding: const EdgeInsets.all(16.0),
                               itemCount: _categories.length,
                               itemBuilder: (context, index) {
