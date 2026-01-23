@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/job_service.dart';
@@ -126,30 +127,37 @@ class _JobReviewDetailScreenState extends State<JobReviewDetailScreen> {
   }
 
   Future<void> _addPhoto(String categoryId) async {
-    // Show dialog to choose source
-    final ImageSource? source = await showDialog<ImageSource>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Select Photo Source'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text('Take Photo'),
-                onTap: () => Navigator.of(context).pop(ImageSource.camera),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text('Choose from Gallery'),
-                onTap: () => Navigator.of(context).pop(ImageSource.gallery),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    ImageSource? source;
+    
+    // On iOS, skip dialog and go directly to gallery - iOS will show its own native picker
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      source = ImageSource.gallery;
+    } else {
+      // On Android/other platforms, show dialog to choose source
+      source = await showDialog<ImageSource>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Select Photo Source'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Take Photo'),
+                  onTap: () => Navigator.of(context).pop(ImageSource.camera),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Choose from Gallery'),
+                  onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
 
     if (source == null) return;
 
@@ -157,6 +165,7 @@ class _JobReviewDetailScreenState extends State<JobReviewDetailScreen> {
       // Use ImagePicker directly with the selected source
       // ImageSource.camera opens camera directly
       // ImageSource.gallery opens photo library directly (no intermediate picker)
+      // On iOS, ImageSource.gallery will show iOS native picker with camera/gallery options
       final XFile? image = await _imagePicker.pickImage(
         source: source,
         imageQuality: 85,
