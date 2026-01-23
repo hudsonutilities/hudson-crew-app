@@ -158,6 +158,9 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     if (source == null) return;
 
     try {
+      // Use ImagePicker directly with the selected source
+      // ImageSource.camera opens camera directly
+      // ImageSource.gallery opens photo library directly (no intermediate picker)
       final XFile? image = await _imagePicker.pickImage(
         source: source,
         imageQuality: 85,
