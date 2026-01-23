@@ -49,10 +49,32 @@
         var tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
+        
         if (typeof tg.disableVerticalSwipes === 'function') {
           tg.disableVerticalSwipes();
         }
+        if (typeof tg.enableClosingConfirmation === 'function') {
+          tg.enableClosingConfirmation();
+        }
       }
+      
+      // Ensure the document is scrollable
+      function ensureDocumentIsScrollable() {
+        var isScrollable = document.documentElement.scrollHeight > window.innerHeight;
+        if (!isScrollable) {
+          document.documentElement.style.setProperty("height", "calc(100vh + 1px)", "important");
+        }
+      }
+      
+      // Prevent window.scrollY from becoming zero
+      function preventCollapse(event) {
+        if (window.scrollY === 0) {
+          window.scrollTo(0, 1);
+        }
+      }
+      
+      window.addEventListener("load", ensureDocumentIsScrollable);
+      document.body.addEventListener("touchstart", preventCollapse);
     });
   </script>
 </head>
