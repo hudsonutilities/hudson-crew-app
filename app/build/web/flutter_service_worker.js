@@ -3,11 +3,11 @@ const MANIFEST = 'flutter-app-manifest';
 const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 
-const RESOURCES = {"assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c",
-"assets/AssetManifest.bin.json": "69a99f98c8b1fb8111c5fb961769fcd8",
+const RESOURCES = {"assets/AssetManifest.bin": "7d91cd8c5545d803eaf6405c609e1402",
+"assets/AssetManifest.bin.json": "ea287667ce14eb8e72e0d755d32b1cbd",
 "assets/FontManifest.json": "dc3d03800ccca4601324923c0b1d6d57",
 "assets/fonts/MaterialIcons-Regular.otf": "2b3d030ecba39d2e701ff5fb3afcb4f9",
-"assets/NOTICES": "ac7b0474fc454104f2dc8c85699803bd",
+"assets/NOTICES": "2170388e4f09c2f5ea3a1c029db3b0b1",
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "33b7d9392238c04c131b6ce224e13711",
 "assets/shaders/ink_sparkle.frag": "ecc85a2e95f5e9f53123dcaf8cb9b6ce",
 "assets/shaders/stretch_effect.frag": "40d68efbbf360632f614c731219e95f0",
@@ -25,14 +25,14 @@ const RESOURCES = {"assets/AssetManifest.bin": "693635b5258fe5f1cda720cf224f158c
 "canvaskit/skwasm_heavy.wasm": "b0be7910760d205ea4e011458df6ee01",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "flutter.js": "24bc71911b75b5f8135c949e27a2984e",
-"flutter_bootstrap.js": "ecbcac43c6764717c7170e4fe503b136",
+"flutter_bootstrap.js": "62162fe83bb7637a62784c15f2616c2f",
 "icons/Icon-192.png": "ac9a721a12bbc803b44f645561ecb1e1",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",
 "icons/Icon-maskable-192.png": "c457ef57daa1d16f64b27b786ec2ea3c",
 "icons/Icon-maskable-512.png": "301a7604d45b3e739efc881eb04896ea",
-"index.html": "c9421c5607dbb1e53ebd1ad75f2dfe7f",
-"/": "c9421c5607dbb1e53ebd1ad75f2dfe7f",
-"main.dart.js": "a80537c25f0c3982faeaaa39d65684c9",
+"index.html": "f19999b73f19e129e9f527686c146a43",
+"/": "f19999b73f19e129e9f527686c146a43",
+"main.dart.js": "db1a19815fa02621a3470257ffc2a205",
 "manifest.json": "34d7a93a24a9edfdcbc76b9763f73a11",
 "version.json": "8ed5e9bd27a7af87162761f40307e8fb"};
 // The application shell files that are downloaded before a service worker can
