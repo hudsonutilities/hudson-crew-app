@@ -393,6 +393,7 @@ class _JobReviewDetailScreenState extends State<JobReviewDetailScreen> {
                   builder: (context) => AlertDialog(
                     title: const Text('Error Details'),
                     content: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
                       child: Text(
                         'Error: ${e.toString()}\n\nStack Trace:\n$stackTrace',
                         style: const TextStyle(fontSize: 12, fontFamily: 'monospace'),
@@ -489,6 +490,7 @@ class _JobReviewDetailScreenState extends State<JobReviewDetailScreen> {
                               child: Text('No photo categories found'),
                             )
                           : ListView.builder(
+                              physics: const ClampingScrollPhysics(),
                               padding: const EdgeInsets.all(16.0),
                               itemCount: _categories.length,
                               itemBuilder: (context, index) {

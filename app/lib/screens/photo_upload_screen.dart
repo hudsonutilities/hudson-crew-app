@@ -412,6 +412,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                               child: Text('No photo categories found'),
                             )
                           : ListView.builder(
+                              physics: const ClampingScrollPhysics(),
                               padding: const EdgeInsets.all(16.0),
                               itemCount: _categories.length,
                               itemBuilder: (context, index) {
