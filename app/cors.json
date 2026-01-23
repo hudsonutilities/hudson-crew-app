@@ -1,0 +1,17 @@
+[
+  {
+    "origin": [
+      "https://hudson-crew-app.pages.dev",
+      "http://localhost:*",
+      "http://127.0.0.1:*"
+    ],
+    "method": ["GET", "HEAD"],
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "Content-Range",
+      "Authorization"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]

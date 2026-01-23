@@ -174,10 +174,20 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
           final bytes = await image.readAsBytes();
           final extension = image.name.split('.').last;
           
+          // Find category name
+          final category = _categories.firstWhere(
+            (cat) => cat['id'].toString() == categoryId,
+            orElse: () => {'name': 'Unknown'},
+          );
+          final categoryName = category['name'] as String? ?? 'Unknown';
+          final address = _jobAddress ?? 'Unknown Address';
+          
           // Upload photo
           await _photoService.uploadPhoto(
             widget.jobId,
             categoryId,
+            address,
+            categoryName,
             photoBytes: bytes,
             fileExtension: extension,
           );
@@ -227,11 +237,59 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
     }
   }
 
-  void _removePhoto(String categoryId, int index) {
-    setState(() {
-      _photosByCategory[categoryId]?.removeAt(index);
-      // Button state will automatically re-check on rebuild
-    });
+  Future<void> _removePhoto(String categoryId, String photoUrl, int index) async {
+    // Confirm deletion
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Photo'),
+          content: const Text('Are you sure you want to delete this photo?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      // Delete from MinIO and Supabase
+      await _photoService.deletePhoto(photoUrl, widget.jobId);
+
+      // Remove from local state
+      setState(() {
+        _photosByCategory[categoryId]?.removeAt(index);
+        // Button state will automatically re-check on rebuild
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Photo deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete photo: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   bool _canSubmitForReview() {
@@ -521,7 +579,7 @@ class _PhotoUploadScreenState extends State<PhotoUploadScreen> {
                                                           ),
                                                         ),
                                                         onPressed: () =>
-                                                            _removePhoto(categoryId, photoIndex),
+                                                            _removePhoto(categoryId, photos[photoIndex], photoIndex),
                                                         padding: EdgeInsets.zero,
                                                         constraints: const BoxConstraints(),
                                                       ),

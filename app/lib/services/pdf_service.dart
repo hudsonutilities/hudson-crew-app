@@ -1,12 +1,40 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:minio/minio.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class PDFService {
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  // MinIO configuration
+  static const String _minioEndpoint = 'minio-api.entify.ca';
+  static const String _bucket = 'hudson-photos';
+  static const bool _useSSL = true;
+  static const String _baseUrl = 'https://minio-api.entify.ca/hudson-photos';
+  
+  late final Minio _minio;
+  
+  PDFService() {
+    _minio = Minio(
+      endPoint: _minioEndpoint,
+      accessKey: dotenv.env['MINIO_ACCESS_KEY'] ?? '',
+      secretKey: dotenv.env['MINIO_SECRET_KEY'] ?? '',
+      useSSL: _useSSL,
+    );
+  }
+
+  /// Sanitizes a string for use in file paths
+  /// Converts to lowercase, replaces spaces/underscores with hyphens,
+  /// removes non-alphanumeric characters (except hyphens), and collapses multiple hyphens
+  String _sanitizeForPath(String input) {
+    return input
+        .toLowerCase()
+        .replaceAll(RegExp(r'[\s_]'), '-') // Replace spaces and underscores with hyphens
+        .replaceAll(RegExp(r'[^a-z0-9\-]'), '') // Remove non-alphanumeric (except hyphens)
+        .replaceAll(RegExp(r'-+'), '-') // Collapse multiple hyphens into one
+        .replaceAll(RegExp(r'^-|-$'), ''); // Remove leading/trailing hyphens
+  }
 
   /// Generates a PDF document for a job with address and photos
   /// 
@@ -132,28 +160,46 @@ class PDFService {
     }
   }
 
-  /// Saves a PDF to Firebase Storage
+  /// Saves a PDF to MinIO Storage
   /// 
   /// [jobId] - The ID of the job
+  /// [address] - The job address (for path structure)
   /// [pdfBytes] - The PDF file as Uint8List bytes
   /// Returns the download URL of the uploaded PDF
-  Future<String> savePDFToFirebase(String jobId, Uint8List pdfBytes) async {
+  Future<String> savePDFToMinIO(
+    String jobId,
+    String address,
+    Uint8List pdfBytes,
+  ) async {
     try {
-      print('[PDFService] savePDFToFirebase() - Uploading PDF for job: $jobId');
+      print('[PDFService] savePDFToMinIO() - Uploading PDF for job: $jobId');
 
-      final storageRef = _storage.ref().child('pdfs/$jobId.pdf');
+      // Build path with sanitized address and job ID
+      final sanitizedAddress = _sanitizeForPath(address);
+      final shortJobId = jobId.length > 8 ? jobId.substring(0, 8) : jobId;
+      final objectPath = 'jobs/${sanitizedAddress}_$shortJobId/${sanitizedAddress}_$shortJobId.pdf';
+
+      print('[PDFService] savePDFToMinIO() - MinIO object path: $objectPath');
+
+      // Convert bytes to stream for S3-compatible API
+      final stream = Stream<Uint8List>.value(pdfBytes);
       
-      await storageRef.putData(
-        pdfBytes,
-        SettableMetadata(contentType: 'application/pdf'),
+      // Upload to MinIO Storage
+      await _minio.putObject(
+        _bucket,
+        objectPath,
+        stream,
+        size: pdfBytes.length,
+        metadata: {'Content-Type': 'application/pdf'},
       );
 
-      final downloadUrl = await storageRef.getDownloadURL();
-      print('[PDFService] savePDFToFirebase() - PDF uploaded successfully: $downloadUrl');
+      // Generate public URL
+      final downloadUrl = '$_baseUrl/$objectPath';
+      print('[PDFService] savePDFToMinIO() - PDF uploaded successfully: $downloadUrl');
       
       return downloadUrl;
     } catch (e) {
-      print('[PDFService] savePDFToFirebase() - Error: $e');
+      print('[PDFService] savePDFToMinIO() - Error: $e');
       rethrow;
     }
   }

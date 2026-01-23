@@ -168,9 +168,19 @@ class _JobReviewDetailScreenState extends State<JobReviewDetailScreen> {
           final bytes = await image.readAsBytes();
           final extension = image.name.split('.').last;
 
+          // Find category name
+          final category = _categories.firstWhere(
+            (cat) => cat['id'].toString() == categoryId,
+            orElse: () => {'name': 'Unknown'},
+          );
+          final categoryName = category['name'] as String? ?? 'Unknown';
+          final address = _jobAddress ?? 'Unknown Address';
+
           await _photoService.uploadPhoto(
             widget.jobId,
             categoryId,
+            address,
+            categoryName,
             photoBytes: bytes,
             fileExtension: extension,
           );
@@ -308,10 +318,10 @@ class _JobReviewDetailScreenState extends State<JobReviewDetailScreen> {
       );
       print('[JobReviewDetailScreen] _generatePDF() - PDF bytes generated, size: ${pdfBytes.length}');
 
-      // Upload PDF to Firebase
-      print('[JobReviewDetailScreen] _generatePDF() - Uploading PDF to Firebase Storage...');
-      final pdfUrl = await _pdfService.savePDFToFirebase(widget.jobId, pdfBytes);
-      print('[JobReviewDetailScreen] _generatePDF() - PDF uploaded to Firebase, URL: $pdfUrl');
+      // Upload PDF to MinIO
+      print('[JobReviewDetailScreen] _generatePDF() - Uploading PDF to MinIO Storage...');
+      final pdfUrl = await _pdfService.savePDFToMinIO(widget.jobId, _jobAddress!, pdfBytes);
+      print('[JobReviewDetailScreen] _generatePDF() - PDF uploaded to MinIO, URL: $pdfUrl');
 
       // Save PDF URL to Supabase jobs table
       print('[JobReviewDetailScreen] _generatePDF() - Saving PDF URL to Supabase jobs table...');
