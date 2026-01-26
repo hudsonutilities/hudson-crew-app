@@ -16,10 +16,32 @@ class PDFService {
   late final Minio _minio;
   
   PDFService() {
+    // Try to get from dotenv first (for local development)
+    String accessKey = dotenv.env['MINIO_ACCESS_KEY'] ?? '';
+    String secretKey = dotenv.env['MINIO_SECRET_KEY'] ?? '';
+    
+    // For web deployments, also check if they're set via environment variables
+    // that might be injected at build time (e.g., via --dart-define)
+    if (accessKey.isEmpty) {
+      accessKey = const String.fromEnvironment('MINIO_ACCESS_KEY', defaultValue: '');
+    }
+    if (secretKey.isEmpty) {
+      secretKey = const String.fromEnvironment('MINIO_SECRET_KEY', defaultValue: '');
+    }
+    
+    if (accessKey.isEmpty || secretKey.isEmpty) {
+      throw Exception(
+        'MINIO_ACCESS_KEY and MINIO_SECRET_KEY must be set.\n'
+        'For local development: Set them in .env.local\n'
+        'For deployment: Set them as environment variables in your deployment platform '
+        'or use --dart-define flags during build'
+      );
+    }
+    
     _minio = Minio(
       endPoint: _minioEndpoint,
-      accessKey: dotenv.env['MINIO_ACCESS_KEY'] ?? '',
-      secretKey: dotenv.env['MINIO_SECRET_KEY'] ?? '',
+      accessKey: accessKey,
+      secretKey: secretKey,
       useSSL: _useSSL,
     );
   }
