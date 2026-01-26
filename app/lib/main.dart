@@ -8,15 +8,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
-  // Try to load .env.local, but don't fail if it doesn't exist (for web deployments)
-  try {
-    await dotenv.load(fileName: '.env.local');
-  } catch (e) {
-    // For web deployments, environment variables may be set via build-time injection
-    // or through the deployment platform's environment variables
-    print('Warning: Could not load .env.local: $e');
-    print('Make sure MINIO_ACCESS_KEY and MINIO_SECRET_KEY are set in your deployment environment');
-  }
+  await dotenv.load(fileName: '.env.local');
 
   // Initialize Supabase
   await Supabase.initialize(
